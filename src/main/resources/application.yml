@@ -1,0 +1,61 @@
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: 'prometheus,health,info,metric,beans,caches'
+      base-path: '/internal/api/actuator'
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+server:
+  port: 8080
+
+spring:
+  kafka:
+    producer:
+      batch-size: 10KB
+      acks: 0
+      properties:
+        linger:
+          ms: 10
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: "group_id"
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 500
+      fetch-max-wait: 10ms
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        partition:
+          assigment:
+            strategy: org.apache.kafka.clients.consumer.RoundRobinAssignor
+        spring:
+          json:
+            trusted:
+              packages: com.my.*
+            add:
+              type:
+                headers: false
+          value:
+            default:
+              type: com.my.kafka_test.model.CustomType
+    admin:
+      client-id: default_client_id
+    bootstrap-servers:
+      - localhost:29093
+
+kafka:
+  read-topic: 'read_topic'
+  send-topic: 'send_topic'
+
